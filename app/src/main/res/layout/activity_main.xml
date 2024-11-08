@@ -5,12 +5,15 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#6D92A1AA"
+    android:backgroundTint="#6D92A1AA"
+    android:backgroundTintMode="src_atop"
     tools:context=".MainActivity">
 
     <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="350dp"
         android:background="#625B71"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/calendarView"
@@ -23,7 +26,9 @@
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:gravity="center"
+            android:paddingTop="8dp"
             android:text="On this day:"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
@@ -34,13 +39,16 @@
             android:id="@+id/wikipediaSummary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:layout_gravity="center"
+            android:gravity="center|center_vertical"
+            android:paddingLeft="8dp"
+            android:paddingTop="25dp"
+            android:paddingRight="8dp"
             android:text="Loading today's event..."
             android:textColor="#FFFFFF"
-            android:textSize="16sp" />
+            android:textSize="20sp" />
 
     </LinearLayout>
-
 
 
     <Button
@@ -48,8 +56,11 @@
         style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton.Icon"
         android:layout_width="201dp"
         android:layout_height="50dp"
-        android:text="Second Activity"
-        android:textColor="@color/white"
+        android:foregroundGravity="fill"
+        android:gravity="center"
+        android:text="See all events for the day"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textColor="@color/mtrl_fab_icon_text_color_selector"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -72,10 +83,12 @@
         android:id="@+id/calendarView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
+        android:background="#6D92A1AA"
         app:layout_constraintBottom_toTopOf="@+id/secondActivityBtn"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/topBar" />
 

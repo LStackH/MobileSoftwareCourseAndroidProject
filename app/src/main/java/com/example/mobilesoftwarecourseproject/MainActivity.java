@@ -3,6 +3,7 @@ package com.example.mobilesoftwarecourseproject;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CalendarView;
@@ -20,7 +21,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Random;
 
 import okhttp3.Call;
@@ -34,8 +38,12 @@ public class MainActivity extends AppCompatActivity {
     private TextView wikipediaSummary;
     private CalendarView calendarView;
     private TextView title;
-
     private String googleBtnUrl;
+    private Boolean is_downloaded;
+
+    private List<Event> eventsList = new ArrayList<>();
+    Random rand = new Random();
+    int random_event;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +60,13 @@ public class MainActivity extends AppCompatActivity {
         secondActivityBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent startIntent = new Intent(getApplicationContext(), SecondActivity.class);
-                startIntent.putExtra("com.example.mobilesoftwarecourseproject.SOMETHING", "HELLO WORLD!");
-                startActivity(startIntent);
+                if (is_downloaded) {
+                    Intent startIntent = new Intent(getApplicationContext(), SecondActivity.class);
+                    startIntent.putExtra("eventsList", (Serializable) eventsList);
+                    startActivity(startIntent);
+                } else {
+                    Toast.makeText(MainActivity.this, "Please wait until content has been downloaded", Toast.LENGTH_SHORT).show();
+                }
 
             }
         });
@@ -81,7 +93,8 @@ public class MainActivity extends AppCompatActivity {
         calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
-                // Call fetchWikipediaEvent with the selected month and day
+                // Call fetchWikipediaEvent with the selected month and date
+                is_downloaded = false;
                 fetchWikipediaEvent(month + 1, dayOfMonth);
                 title.setText("On this day (" + dayOfMonth + "." + (month+1) + "):" );
             }
@@ -98,9 +111,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     // Handles the wikipedia fetching
+
     private void fetchWikipediaEvent(int month, int day) {
         String url = "https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/" + month + "/" + day;
-
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder().url(url).build();
         runOnUiThread(() -> wikipediaSummary.setText("Loading content..."));
@@ -117,39 +130,46 @@ public class MainActivity extends AppCompatActivity {
                     String responseData = response.body().string();
                     JsonObject json = JsonParser.parseString(responseData).getAsJsonObject();
                     JsonArray events = json.getAsJsonArray("events");
+                    googleBtnUrl = null;
+
+                    // Clear the events list for each new date
+                    eventsList.clear();
+
                     if (events.size() > 0) {
-                        // Generate random num to pick from all the events in the json array
-                        Random rand = new Random();
-                        int random_number = rand.nextInt(events.size());
+                        for (int i = 0; i < events.size(); i++) {
+                            JsonObject eventObject = events.get(i).getAsJsonObject();
+                            String description = eventObject.get("text").getAsString();
 
-                        JsonObject firstEvent = events.get(random_number).getAsJsonObject();
-                        String description = firstEvent.get("text").getAsString();
-
-                        googleBtnUrl = null;
-
-                        JsonArray pages = firstEvent.getAsJsonArray("pages");
-                        if (pages != null && pages.size() > 0) {
-                            JsonObject firstPage = pages.get(0).getAsJsonObject();
-                            JsonObject contentUrls = firstPage.getAsJsonObject("content_urls");
-                            if (contentUrls != null) {
-                                JsonObject mobile = contentUrls.getAsJsonObject("mobile");
-                                googleBtnUrl = mobile.get("page").getAsString();
+                            // Retrieve mobile URL for each event if available
+                            String mobileUrl = null;
+                            JsonArray pages = eventObject.getAsJsonArray("pages");
+                            if (pages != null && pages.size() > 0) {
+                                JsonObject firstPage = pages.get(0).getAsJsonObject();
+                                JsonObject contentUrls = firstPage.getAsJsonObject("content_urls");
+                                if (contentUrls != null) {
+                                    JsonObject mobile = contentUrls.getAsJsonObject("mobile");
+                                    mobileUrl = mobile.get("page").getAsString();
+                                }
                             }
-                        }
 
-                        // Update UI with the description
-                        runOnUiThread(() -> wikipediaSummary.setText(description));
+                            // Add each event to the list
+                            eventsList.add(new Event(description, mobileUrl));
+                        }
+                        random_event = rand.nextInt(events.size());
+                        // Display a random event in the TextView
+                        runOnUiThread(() -> wikipediaSummary.setText(eventsList.get(random_event).getText()));
+                        googleBtnUrl = eventsList.get(random_event).getMobileurl();
+                        is_downloaded = true;
                     } else {
-                        googleBtnUrl = null;
                         runOnUiThread(() -> wikipediaSummary.setText("No events for this date."));
                     }
                 } else {
-                    googleBtnUrl = null;
                     runOnUiThread(() -> wikipediaSummary.setText("Failed to load event."));
                 }
             }
         });
     }
+
 
     // Opens the given URL, outside the application
     private void openURL_Intent(String url){
