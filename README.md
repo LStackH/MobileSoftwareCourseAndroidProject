@@ -2,8 +2,7 @@
 
 #This repository contains the Android Mobile App project itself, the learning diary and this readme with a link to the video of the project running
 
-#Description: On this day android app shows you what events, according to wikipedia, happened on 'this' day. By default, it will show you the current date, but the user can change the date with the provided calendar.
-#They will also have the ability to open the current event in Wikipedia and/or see all the events of that day, and access each of theirs wikipedia page (if available).
+#Description: On this day android app shows you what events, according to wikipedia, happened on 'this' day. By default, it will show you the current date, but the user can change the date with the provided calendar. They will also have the ability to open the current event in Wikipedia and/or see all the events of that day, and access each of theirs wikipedia page (if available).
 
 #To run the project, I used Android Studio Iguana 2023.2.1 version and tested it on a VM Pixel 4 API 30 and on my own mobile phone, Samsung S10+.
 
